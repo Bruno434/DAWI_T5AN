@@ -149,12 +149,12 @@ public class FrmManteProd extends JFrame {
 		JButton btnBuscar = new JButton("Buscar");
 		btnBuscar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BuscarProducto();	
+				BuscarProducto();
 			}
 		});
 		btnBuscar.setBounds(323, 53, 89, 24);
 		contentPane.add(btnBuscar);
-		
+
 		JButton btnActualizar = new JButton("Actualizar");
 		btnActualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -203,6 +203,13 @@ public class FrmManteProd extends JFrame {
 			txtSalida.append("************************************** \n");
 		}
 		em.close();
+		txtCódigo.setText("");
+		txtDescripcion.setText("");
+		txtStock.setText("");
+		txtPrecio.setText("");
+		cboCategorias.setSelectedIndex(0);
+		cboProveedores.setSelectedIndex(0);
+		
 	}
 
 	void registrar() {
@@ -231,30 +238,70 @@ public class FrmManteProd extends JFrame {
 			// ??? registrar
 			em.persist(p);
 			em.getTransaction().commit();
+			JOptionPane.showMessageDialog(this, "Producto registrado");
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Error");
 		}
-
 		em.close();
-		JOptionPane.showMessageDialog(this, "Producto registrado");
+		txtCódigo.setText("");
+		txtDescripcion.setText("");
+		txtStock.setText("");
+		txtPrecio.setText("");
+		cboCategorias.setSelectedIndex(0);
+		cboProveedores.setSelectedIndex(0);
+		listado();
 	}
 
 	void BuscarProducto() {
 		EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("mysql");
 		EntityManager em = fabrica.createEntityManager();
+		Producto p = em.find(Producto.class, txtCódigo.getText());
 		try {
-
-			Producto p = em.find(Producto.class, txtCódigo.getText());
 			if (p == null)
-				txtSalida.setText("No existe");
+				txtSalida.setText("No existe " + txtCódigo.getText());
 			else {
-				txtSalida.setText("Nombre... : "+p.getDes_prod());;
+				txtSalida.setText("Nombre... : " + p.getDes_prod());
+				txtDescripcion.setText(p.getDes_prod());
+				txtStock.setText(String.valueOf(p.getStk_prod()));
+				txtPrecio.setText(String.valueOf(p.getPre_prod()));
+				cboCategorias.setSelectedIndex(p.getIdcategoria());
+				cboProveedores.setSelectedIndex(p.getIdprovedor());
 			}
 		} catch (Exception e) {
-			txtSalida.setText("No existe"+e.getMessage());
 		}
 		em.close();
 	}
+
 	void actualizarProducto() {
+		String cod = txtCódigo.getText();
+		String desc = txtDescripcion.getText();
+		int stck = Integer.parseInt(txtStock.getText());
+		double precio = Double.parseDouble(txtPrecio.getText());
+		int cate = cboCategorias.getSelectedIndex();
+		int est = 1;
+		int prov = cboProveedores.getSelectedIndex();
+
+		Producto p = new Producto();
+		p.setId_prod(cod);
+		p.setDes_prod(desc);
+		p.setStk_prod(stck);
+		p.setPre_prod(precio);
+		p.setIdcategoria(cate);
+		p.setEst_prod(est);
+		p.setIdprovedor(prov);
+
+		EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("mysql");
+		EntityManager em = fabrica.createEntityManager();
+		em.getTransaction().begin();
+		try {
+			em.merge(p);
+			em.getTransaction().commit();
+			JOptionPane.showMessageDialog(this, "Producto Actualizado");
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Error");
+		}
+
+		em.close();
+		BuscarProducto();
 	}
 }
