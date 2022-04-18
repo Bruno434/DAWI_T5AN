@@ -139,11 +139,11 @@ public class FrmManteProd extends JFrame {
 		contentPane.add(txtPrecio);
 
 		JLabel lblProveedor = new JLabel("Proveedor:");
-		lblProveedor.setBounds(220, 106, 102, 14);
+		lblProveedor.setBounds(209, 134, 102, 14);
 		contentPane.add(lblProveedor);
 
 		cboProveedores = new JComboBox<Object>();
-		cboProveedores.setBounds(310, 106, 86, 22);
+		cboProveedores.setBounds(296, 130, 86, 22);
 		contentPane.add(cboProveedores);
 
 		JButton btnBuscar = new JButton("Buscar");
@@ -154,6 +154,15 @@ public class FrmManteProd extends JFrame {
 		});
 		btnBuscar.setBounds(323, 53, 89, 24);
 		contentPane.add(btnBuscar);
+		
+		JButton btnActualizar = new JButton("Actualizar");
+		btnActualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				actualizarProducto();
+			}
+		});
+		btnActualizar.setBounds(323, 82, 89, 24);
+		contentPane.add(btnActualizar);
 
 		llenaCombo();
 	}
@@ -245,5 +254,7 @@ public class FrmManteProd extends JFrame {
 			txtSalida.setText("No existe"+e.getMessage());
 		}
 		em.close();
+	}
+	void actualizarProducto() {
 	}
 }
