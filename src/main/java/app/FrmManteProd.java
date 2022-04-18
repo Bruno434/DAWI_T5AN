@@ -75,7 +75,7 @@ public class FrmManteProd extends JFrame {
 				registrar();
 			}
 		});
-		btnNewButton.setBounds(324, 29, 89, 23);
+		btnNewButton.setBounds(323, 26, 89, 24);
 		contentPane.add(btnNewButton);
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -141,11 +141,20 @@ public class FrmManteProd extends JFrame {
 		JLabel lblProveedor = new JLabel("Proveedor:");
 		lblProveedor.setBounds(220, 106, 102, 14);
 		contentPane.add(lblProveedor);
-		
+
 		cboProveedores = new JComboBox<Object>();
 		cboProveedores.setBounds(310, 106, 86, 22);
 		contentPane.add(cboProveedores);
-		
+
+		JButton btnBuscar = new JButton("Buscar");
+		btnBuscar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BuscarProducto();	
+			}
+		});
+		btnBuscar.setBounds(323, 53, 89, 24);
+		contentPane.add(btnBuscar);
+
 		llenaCombo();
 	}
 
@@ -156,13 +165,13 @@ public class FrmManteProd extends JFrame {
 		List<Categoria> list = consulta.getResultList();
 		cboCategorias.addItem("Selccione...");
 		for (Categoria c : list) {
-			cboCategorias.addItem(c.getIdCat()+ "-" +c.getDesc());
+			cboCategorias.addItem(c.getIdCat() + "-" + c.getDesc());
 		}
 		TypedQuery<Proveedor> consulta2 = em.createQuery("select p from Proveedor p", Proveedor.class);
 		List<Proveedor> list2 = consulta2.getResultList();
 		cboProveedores.addItem("Selccione...");
 		for (Proveedor p : list2) {
-			cboProveedores.addItem(p.getIdprovedor()+ "-" +p.getNombre_rs());
+			cboProveedores.addItem(p.getIdprovedor() + "-" + p.getNombre_rs());
 		}
 		em.close();
 	}
@@ -174,29 +183,29 @@ public class FrmManteProd extends JFrame {
 		TypedQuery<Producto> consulta = em.createQuery("select p from Producto p", Producto.class);
 		List<Producto> list = consulta.getResultList();
 		txtSalida.setText("");
-		for (Producto p : list) {		
-			txtSalida.append( "Codigo... : "+p.getId_prod()+"\n");
-			txtSalida.append( "Nombre... : "+p.getDes_prod()+"\n");
-			txtSalida.append( "Stock... : "+p.getStk_prod()+"\n");
-			txtSalida.append( "Precio... : "+p.getPre_prod()+"\n");
-			txtSalida.append( "Categoria... : "+p.getCategorias().getDesc()+"\n");
-			txtSalida.append( "Estado... : "+p.getEst_prod()+"\n");
-			txtSalida.append( "Proveedor... : "+p.getProveedores().getNombre_rs()+"\n");
-			txtSalida.append( "************************************** \n");
+		for (Producto p : list) {
+			txtSalida.append("Codigo... : " + p.getId_prod() + "\n");
+			txtSalida.append("Nombre... : " + p.getDes_prod() + "\n");
+			txtSalida.append("Stock... : " + p.getStk_prod() + "\n");
+			txtSalida.append("Precio... : " + p.getPre_prod() + "\n");
+			txtSalida.append("Categoria... : " + p.getCategorias().getDesc() + "\n");
+			txtSalida.append("Estado... : " + p.getEst_prod() + "\n");
+			txtSalida.append("Proveedor... : " + p.getProveedores().getNombre_rs() + "\n");
+			txtSalida.append("************************************** \n");
 		}
 		em.close();
 	}
 
 	void registrar() {
-		String cod=txtCódigo.getText();
-		String desc=txtDescripcion.getText();
-		int stck=Integer.parseInt(txtStock.getText());
-		double precio=Double.parseDouble(txtPrecio.getText());
-		int cate=cboCategorias.getSelectedIndex();
-		int est=1;
-		int prov=cboProveedores.getSelectedIndex();
-		
-		Producto p= new Producto();
+		String cod = txtCódigo.getText();
+		String desc = txtDescripcion.getText();
+		int stck = Integer.parseInt(txtStock.getText());
+		double precio = Double.parseDouble(txtPrecio.getText());
+		int cate = cboCategorias.getSelectedIndex();
+		int est = 1;
+		int prov = cboProveedores.getSelectedIndex();
+
+		Producto p = new Producto();
 		p.setId_prod(cod);
 		p.setDes_prod(desc);
 		p.setStk_prod(stck);
@@ -204,20 +213,37 @@ public class FrmManteProd extends JFrame {
 		p.setIdcategoria(cate);
 		p.setEst_prod(est);
 		p.setIdprovedor(prov);
-		
-		//Proceso de Registro
-				EntityManagerFactory fabrica =Persistence.createEntityManagerFactory("mysql");
-				EntityManager em=fabrica.createEntityManager();
-				em.getTransaction().begin();
-				try {
-					//??? registrar
-					em.persist(p);
-					em.getTransaction().commit();
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(this, "Error");
-				}
 
-				em.close();
-				JOptionPane.showMessageDialog(this, "Producto registrado");
+		// Proceso de Registro
+		EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("mysql");
+		EntityManager em = fabrica.createEntityManager();
+		em.getTransaction().begin();
+		try {
+			// ??? registrar
+			em.persist(p);
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Error");
+		}
+
+		em.close();
+		JOptionPane.showMessageDialog(this, "Producto registrado");
+	}
+
+	void BuscarProducto() {
+		EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("mysql");
+		EntityManager em = fabrica.createEntityManager();
+		try {
+
+			Producto p = em.find(Producto.class, txtCódigo.getText());
+			if (p == null)
+				txtSalida.setText("No existe");
+			else {
+				txtSalida.setText("Nombre... : "+p.getDes_prod());;
+			}
+		} catch (Exception e) {
+			txtSalida.setText("No existe"+e.getMessage());
+		}
+		em.close();
 	}
 }
